@@ -1,0 +1,14 @@
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+}
+
+.button-container .btn {
+    flex: 1;
+    min-width: 1em;
+    height: 1.8em;
+    font-size: 1em;
+    padding: 0;
+    text-align: center;
+}
