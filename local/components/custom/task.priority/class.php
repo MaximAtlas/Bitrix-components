@@ -121,10 +121,17 @@ class TaskPriorityController extends CBitrixComponent implements Controllerable
 
         $dataClass = $this->getHistoryBlock();
 
-        $history = $dataClass::getList([
-            'order' => ['UF_CHANGE_DATE' => 'DESC', 'UF_NEW_PRIORITY' => 'DESC'],
+        $historyQuery = $dataClass::getList([
+            'order' => ['UF_CHANGE_DATE' => 'DESC', ],
             'limit' => 20
-        ])->fetchAll();
+        ]);
+
+        if ($isResponse) {
+            $history = $historyQuery->fetch();
+            $history = $history ? [$history] : [];
+        } else {
+            $history = $historyQuery->fetchAll();
+        }
 
         $uHistory = $this->processHistory($history);
 
