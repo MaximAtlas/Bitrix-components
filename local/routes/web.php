@@ -31,7 +31,7 @@ function routingProd(RoutingConfigurator $routes)
         return $controller->changePriorityAction();
 
     });
-/*    $routes->get('/task_priority/history', function () {
+    $routes->get('/task_priority/history', function () {
 
         include $_SERVER['DOCUMENT_ROOT'] . '/local/components/custom/task.priority/class.php';
 
@@ -39,5 +39,5 @@ function routingProd(RoutingConfigurator $routes)
 
         return $controller->getHistoryAction();
 
-    });*/
+    });
 }

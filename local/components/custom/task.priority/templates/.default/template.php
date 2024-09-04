@@ -5,7 +5,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\UI\Extension;
 
-/*Extension::load("ui.vue");*/
+
 
 
 $APPLICATION->SetTitle('Приоритеты задач');
@@ -16,7 +16,7 @@ $APPLICATION->SetTitle('Приоритеты задач');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+
     <?php // Подключение CSS-файлов Bootstrap из папки bitrix/css
     Asset::getInstance()->addCss('/bitrix/css/main/bootstrap_v4/bootstrap.min.css');
     ?>
@@ -56,7 +56,7 @@ $APPLICATION->SetTitle('Приоритеты задач');
     </table>
 </div>
 
-<!--<div id="history">
+<div id="history">
     <h3>История изменений приоритетов</h3>
     <table class="table table-striped table-bordered">
         <thead>
@@ -71,32 +71,22 @@ $APPLICATION->SetTitle('Приоритеты задач');
         </thead>
         <tbody>
         <tr v-for="record in history" :key="record.ID">
-            <td>{{ record.TASK_ID }}</td>
+            <td>{{ record.UF_TASK_ID }}</td>
             <td>{{ record.UF_USER_NAME }}</td>
-            <td>{{ record.CHANGE_DATE }}</td>
-            <td>{{ record.OLD_PRIORITY }}</td>
-            <td>{{ record.NEW_PRIORITY }}</td>
-            <td>{{ record.ACTION }}</td>
+            <td>{{ record.UF_CHANGE_DATE }}</td>
+            <td>{{ record.UF_OLD_PRIORITY }}</td>
+            <td>{{ record.UF_NEW_PRIORITY }}</td>
+            <td>{{ record.UF_ACTION }}</td>
         </tr>
         </tbody>
     </table>
-</div>-->
+</div>
 </body>
-
-
 
 <script type="text/javascript">
     const tasksData = <?= json_encode($arResult['TASKS']) ?>;
-    const history = <?= json_encode($arResult['HISTORY']) ?>;
+    const historyData = <?= json_encode($arResult['HISTORY']) ?>;
 </script>
-
-
-<script type="text/javascript" src="<?= $templateFolder ?>/script.js"></script>
-
-<!--<script type="text/javascript" src="<?php /*= $templateFolder */?>/script-history.js"></script>-->
-
-
-
 </html>
 
 

@@ -24,11 +24,11 @@ class TaskPriorityController extends CBitrixComponent implements Controllerable
                 'method' => 'changePriorityAction',
                 'POST' => true,
             ],
-/*            'getHistory' => [
+            'getHistory' => [
                 'class' => self::class,
                 'method' => 'getHistoryAction',
                 'POST' => false,
-            ],*/
+            ],
             ];
 
 
@@ -39,32 +39,29 @@ class TaskPriorityController extends CBitrixComponent implements Controllerable
     public function executeComponent(): void
     {
 
+        \Bitrix\Main\UI\Extension::load("ui.vue");
+
+
         $this->arResult['TASKS'] = $this->getTasks();
+        $this->processTasks();
 
-        $this->userByTask();
-        $this->timeTaskToFormat();
-
-
-        $this->arResult['HISTORY'] = $this->getHistoryAction();
+        $this->arResult['HISTORY'] = $this->getHistoryAction(false);
 
         $this->includeComponentTemplate();
     }
-    protected function userByTask():void
+
+    private function processTasks(): void
     {
         foreach ($this->arResult['TASKS'] as &$task) {
             $task['RESPONSIBLE_NAME'] = (getUserNameById($task['RESPONSIBLE_ID']));
             $task['CREATED_BY_NAME'] = (getUserNameById($task['CREATED_BY']));
-        }
-    }
-    protected function timeTaskToFormat(): void
-    {
-        foreach ($this->arResult['TASKS'] as &$task) {
-            $task['CREATED_DATE'] = ($task['CREATED_DATE']->format('Y-m-d H:i:s'));
+            $task['CREATED_DATE'] = $task['CREATED_DATE']->format('Y-m-d H:i:s');
+
         }
     }
 
 
-    protected function getTasks(array $arOrder = [], array $arFilter = [], array $arSelect = [], bool $single = false)
+    private function getTasks(array $arOrder = [], array $arFilter = [], array $arSelect = [], bool $single = false)
     {
         $defaultOrder = ["UF_PRIORITY" => "ASC", "DEADLINE" => "ASC"];
         $defaultFilter = ["STATUS" => [1, 2, 3, 4, 5]];
@@ -82,7 +79,7 @@ class TaskPriorityController extends CBitrixComponent implements Controllerable
         return ($single ? $dbTasks->fetch() : $dbTasks->fetchAll());
     }
 
-    protected function GetHistoryBlock():string
+    private function getHistoryBlock():string
     {
 
         $entity = HighloadBlockTable::compileEntity(HighloadBlockTable::getById(2)->fetch());
@@ -91,9 +88,9 @@ class TaskPriorityController extends CBitrixComponent implements Controllerable
         return $dataClass;
 
     }
-    protected function addInHistoryBlock($taskId, int $currentPriority, int $newPriority, string $action):void
+    private function addInHistoryBlock($taskId, int $currentPriority, int $newPriority, string $action):void
     {
-        $dataClass = $this->GetHistoryBlock();
+        $dataClass = $this->getHistoryBlock();
 
         $userId = $GLOBALS['USER']->GetID();
 
@@ -110,19 +107,36 @@ class TaskPriorityController extends CBitrixComponent implements Controllerable
 
     }
 
-    public function getHistoryAction()
+    private function checkHLBlock()
     {
-        $dataClass = $this->GetHistoryBlock();
+        if (!Bitrix\Main\Loader::includeModule('highloadblock')) {
+            throw new \Exception('Highloadblock module is not installed');
+        }
+    }
+
+    public function getHistoryAction(bool $isResponse = true)
+    {
+
+        $this->checkHLBlock();
+
+        $dataClass = $this->getHistoryBlock();
 
         $history = $dataClass::getList([
-            'order' => ['UF_CHANGE_DATE' => 'DESC'],
+            'order' => ['UF_CHANGE_DATE' => 'DESC', 'UF_NEW_PRIORITY' => 'DESC'],
             'limit' => 20
         ])->fetchAll();
 
+        $uHistory = $this->processHistory($history);
+
+        return $isResponse ?  json_encode($uHistory) : $uHistory;
+    }
+
+    private function processHistory($history)
+    {
         foreach ($history as &$record) {
             $record['UF_USER_NAME'] = (getUserNameById($record['UF_USER_ID']));
+            $record['UF_CHANGE_DATE'] = ($record['UF_CHANGE_DATE']->format('Y-m-d H:i:s'));
         }
-
         return $history;
     }
 

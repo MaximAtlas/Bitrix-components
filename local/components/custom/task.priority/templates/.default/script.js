@@ -1,5 +1,25 @@
 BX.ready(function() {
-    Vue.createApp({
+    const historyApp = BX.Vue.create({
+        data() {
+            return {
+                history: historyData,
+            };
+        },
+        methods: {
+            loadHistory() {
+                fetch('/task_priority/history')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.history.unshift(...data);
+                    })
+                    .catch(error => {
+                        console.error('Ошибка запроса:', error);
+                    });
+            },
+        },
+    }).mount('#history');
+
+    const taskApp = BX.Vue.create({
         data() {
             return {
                 tasks: tasksData,
@@ -38,18 +58,22 @@ BX.ready(function() {
 
                         task.UF_PRIORITY = priority;
 
-                        this.sortTasks();
+
+                        setTimeout(() => {
+                            this.sortTasks();
+                            if (historyApp) {
+                                historyApp.loadHistory();
+                            }
+                        }, 2000);
+
                     })
                     .catch(error => {
                         console.error('Fetch error:', error);
                     });
             },
             sortTasks() {
-                setTimeout(() => {
                     this.tasks.sort((a, b) => a.UF_PRIORITY - b.UF_PRIORITY);
-                }, 3000);
             },
         },
     }).mount('#task');
 });
-
